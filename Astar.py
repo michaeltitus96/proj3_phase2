@@ -8,12 +8,12 @@ import imutils
 import sys
 import math
 
-start_x = int(input("Enter starting x-coordinate (5-395): "))       #user inputs the starting and finishing coordinates
-start_y = int(input("Enter starting y-coordinate (5-295): "))
-goal_x = int(input("Enter finishing x-coordinate (5-395): "))
-goal_y = int(input("Enter finishing y-coordinate (5-295): "))
+start_x = int(input("Enter starting x-coordinate (6-395): "))       #user inputs the starting and finishing coordinates
+start_y = int(input("Enter starting y-coordinate (6-295): "))
+goal_x = int(input("Enter finishing x-coordinate (6-395): "))
+goal_y = int(input("Enter finishing y-coordinate (6-295): "))
 print()
-d = int(input("Enter the step distance for each movement (1-4): "))
+d = int(input("Enter the step distance for each movement (1-10): "))
 
 image = np.ones((801,601,1),np.uint8)*255     #creates blank image
 
@@ -43,6 +43,7 @@ goalx,goaly = CoordToString(goal_x,goal_y)
 goal_loc = str(goalx+str(int(goal_x))+goaly+str(int(goal_y)))
 
 d = d*2
+d1 = copy.deepcopy(d)
 
 obstacles = []      #lists obstacle points that cannot be traversed
 
@@ -276,7 +277,7 @@ if goal_x > 800 or goal_x < 0 or goal_y > 600 or goal_y < 0:
     print("Goal coordinates are outside boundaries. Please try again.")
     sys.exit()
     
-if d > 8 or d < 2:
+if d > 20 or d < 2:
     print("Invalid step distance entered. Please try again.")
     sys.exit()
 
@@ -303,19 +304,21 @@ def move00(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move30(x,y,cost,p):    
     p = p + 'B'
@@ -326,19 +329,21 @@ def move30(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move60(x,y,cost,p):    
     p = p + 'C'
@@ -349,19 +354,21 @@ def move60(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move90(x,y,cost,p):    
     p = p + 'D'
@@ -372,19 +379,21 @@ def move90(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move120(x,y,cost,p):    
     p = p + 'E'
@@ -395,19 +404,21 @@ def move120(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move150(x,y,cost,p):    
     p = p + 'F'
@@ -418,19 +429,21 @@ def move150(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move180(x,y,cost,p):    
     p = p + 'G'
@@ -441,19 +454,21 @@ def move180(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move210(x,y,cost,p):    
     p = p + 'H'
@@ -464,19 +479,21 @@ def move210(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move240(x,y,cost,p):    
     p = p + 'I'
@@ -487,19 +504,21 @@ def move240(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move270(x,y,cost,p):    
     p = p + 'J'
@@ -510,19 +529,21 @@ def move270(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move300(x,y,cost,p):    
     p = p + 'K'
@@ -533,19 +554,21 @@ def move300(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 def move330(x,y,cost,p):    
     p = p + 'L'
@@ -556,19 +579,21 @@ def move330(x,y,cost,p):
     ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
     x = round(x)
     y = round(y)
-    cost = ctg + d
+    cost = ctg + ((len(p)-1)*d1)
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        locations.append(location)
         for i in range(x-3,x+3):
             for j in range(y-3,y+3):
-                location = CoordToString(x,y)
+                stringx,stringy = CoordToString(i,j) 
+                location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
-    return x,y,location,cost,p
+        return x,y,location,cost,p
+    else:
+        pass
 
 while checkGoal(current_x,current_y) == False:
     move00(current_x,current_y,current_cost,current_p)
@@ -583,7 +608,7 @@ while checkGoal(current_x,current_y) == False:
     move270(current_x,current_y,current_cost,current_p)
     move300(current_x,current_y,current_cost,current_p)
     move330(current_x,current_y,current_cost,current_p)
-    
+
     del travelled[start_loc]
     travelled = {k: v for k, v in sorted(travelled.items(), key=lambda item: item[1])}   
     start_loc = list(travelled.keys())[0]
@@ -591,7 +616,7 @@ while checkGoal(current_x,current_y) == False:
     current_y = int(start_loc[3:])
     current_cost = list(travelled.values())[0][0]
     current_p = list(travelled.values())[0][1]
-    print(round(current_x/2),round(current_y/2),current_cost)
+    print(current_x,current_y,current_cost)
  
 print("Solution found! Optimal path marked in red.")
 x1 = copy.deepcopy(start_x)
@@ -664,4 +689,3 @@ cv2.imshow('image',rotated)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 cv2.waitKey(1)  
-
