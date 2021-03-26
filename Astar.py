@@ -6,15 +6,16 @@ import cv2
 import copy
 import imutils
 import sys
+import math
 
 start_x = int(input("Enter starting x-coordinate (5-395): "))       #user inputs the starting and finishing coordinates
 start_y = int(input("Enter starting y-coordinate (5-295): "))
 goal_x = int(input("Enter finishing x-coordinate (5-395): "))
 goal_y = int(input("Enter finishing y-coordinate (5-295): "))
 print()
-d = int(input("Enter the step distance for each movement (1-10): "))
+d = int(input("Enter the step distance for each movement (1-4): "))
 
-image = np.ones((801,601,1),np.uint8)*255       #creates blank image
+image = np.ones((801,601,1),np.uint8)*255     #creates blank image
 
 def CoordToString(x,y):
     if x // 10 < 1:        #lists location as a string with 6 integers (x and y coords) (000000 to 800600)
@@ -35,13 +36,13 @@ start_x = start_x*2
 start_y = start_y*2
 startx,starty = CoordToString(start_x,start_y) 
 start_loc = str(startx+str(int(start_x))+starty+str(int(start_y)))
-print(start_loc)
 
 goal_x = goal_x*2
 goal_y = goal_y*2
 goalx,goaly = CoordToString(goal_x,goal_y) 
 goal_loc = str(goalx+str(int(goal_x))+goaly+str(int(goal_y)))
-print(goal_loc)
+
+d = d*2
 
 obstacles = []      #lists obstacle points that cannot be traversed
 
@@ -252,7 +253,7 @@ for i in range(362,624):        #clearance 6: ellipse
             pass
    
 if start_loc in obstacles:
-    print("Starting coordinates are in an obstalce. Please try again.")
+    print("Starting coordinates are in an obstacle. Please try again.")
     sys.exit()
    
 if start_loc in clearance:
@@ -260,7 +261,7 @@ if start_loc in clearance:
     sys.exit()
 
 if goal_loc in obstacles:
-    print("Goal coordinates are in an obstalce. Please try again.")
+    print("Goal coordinates are in an obstacle. Please try again.")
     sys.exit()
    
 if goal_loc in clearance:
@@ -275,10 +276,383 @@ if goal_x > 800 or goal_x < 0 or goal_y > 600 or goal_y < 0:
     print("Goal coordinates are outside boundaries. Please try again.")
     sys.exit()
     
-for i in clearance:     #displays obstacles as black pixels on image map
-    locx = int(i[0:3])
-    locy = int(i[3:])
-    image[locx,locy] = 127    
+if d > 8 or d < 2:
+    print("Invalid step distance entered. Please try again.")
+    sys.exit()
+
+def checkGoal(x,y):
+    if (goal_x - 3 <= x <= goal_x + 3) and (goal_y - 3 <= y <= goal_y + 3):
+        return True
+    else:
+        return False
+
+travelled = {start_loc : [0,'I']}
+current_x = copy.deepcopy(start_x)
+current_y = copy.deepcopy(start_y)
+current_p = travelled[start_loc][1]
+current_cost = travelled[start_loc][0]
+
+locations = [start_loc]
+
+def move00(x,y,cost,p):    
+    p = p + 'A'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(0)))
+    y = y + (d*math.sin(math.radians(0)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move30(x,y,cost,p):    
+    p = p + 'B'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(30)))
+    y = y + (d*math.sin(math.radians(30)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move60(x,y,cost,p):    
+    p = p + 'C'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(60)))
+    y = y + (d*math.sin(math.radians(60)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move90(x,y,cost,p):    
+    p = p + 'D'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(90)))
+    y = y + (d*math.sin(math.radians(90)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move120(x,y,cost,p):    
+    p = p + 'E'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(120)))
+    y = y + (d*math.sin(math.radians(120)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move150(x,y,cost,p):    
+    p = p + 'F'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(150)))
+    y = y + (d*math.sin(math.radians(150)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move180(x,y,cost,p):    
+    p = p + 'G'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(180)))
+    y = y + (d*math.sin(math.radians(180)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move210(x,y,cost,p):    
+    p = p + 'H'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(210)))
+    y = y + (d*math.sin(math.radians(210)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move240(x,y,cost,p):    
+    p = p + 'I'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(240)))
+    y = y + (d*math.sin(math.radians(240)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move270(x,y,cost,p):    
+    p = p + 'J'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(270)))
+    y = y + (d*math.sin(math.radians(270)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move300(x,y,cost,p):    
+    p = p + 'K'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(300)))
+    y = y + (d*math.sin(math.radians(300)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+def move330(x,y,cost,p):    
+    p = p + 'L'
+    xmap = copy.deepcopy(x)
+    ymap = copy.deepcopy(y)
+    x = x + (d*math.cos(math.radians(330)))
+    y = y + (d*math.sin(math.radians(330)))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    x = round(x)
+    y = round(y)
+    cost = ctg + d
+    stringx,stringy = CoordToString(x,y) 
+    location = str(stringx+str(int(x))+stringy+str(int(y)))
+    if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
+        cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
+        update = {location : [cost,p]}
+        travelled.update(update)
+        locations.append(location)
+        for i in range(x-3,x+3):
+            for j in range(y-3,y+3):
+                location = CoordToString(x,y)
+                locations.append(location)
+    return x,y,location,cost,p
+
+while checkGoal(current_x,current_y) == False:
+    move00(current_x,current_y,current_cost,current_p)
+    move30(current_x,current_y,current_cost,current_p)
+    move60(current_x,current_y,current_cost,current_p)
+    move90(current_x,current_y,current_cost,current_p)
+    move120(current_x,current_y,current_cost,current_p)
+    move150(current_x,current_y,current_cost,current_p)
+    move180(current_x,current_y,current_cost,current_p)
+    move210(current_x,current_y,current_cost,current_p)
+    move240(current_x,current_y,current_cost,current_p)
+    move270(current_x,current_y,current_cost,current_p)
+    move300(current_x,current_y,current_cost,current_p)
+    move330(current_x,current_y,current_cost,current_p)
+    
+    del travelled[start_loc]
+    travelled = {k: v for k, v in sorted(travelled.items(), key=lambda item: item[1])}   
+    start_loc = list(travelled.keys())[0]
+    current_x = int(start_loc[0:3])
+    current_y = int(start_loc[3:])
+    current_cost = list(travelled.values())[0][0]
+    current_p = list(travelled.values())[0][1]
+    print(round(current_x/2),round(current_y/2),current_cost)
+ 
+print("Solution found! Optimal path marked in red.")
+x1 = copy.deepcopy(start_x)
+y1 = copy.deepcopy(start_y)
+
+image = cv2.cvtColor(image,cv2.COLOR_GRAY2RGB)
+
+for i in current_p:         #shows optimal path by back tracking from first parent node to reach solution
+    if i == 'I':
+        x2 = round(x1)
+        y2 = round(y1)
+    elif i == 'A':
+        x2 = round(x1 + (d*math.cos(math.radians(0))))
+        y2 = round(y1 + (d*math.sin(math.radians(0))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'B':
+        x2 = round(x1 + (d*math.cos(math.radians(30))))
+        y2 = round(y1 + (d*math.sin(math.radians(30))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'C':
+        x2 = round(x1 + (d*math.cos(math.radians(60))))
+        y2 = round(y1 + (d*math.sin(math.radians(60))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'D':
+        x2 = round(x1 + (d*math.cos(math.radians(90))))
+        y2 = round(y1 + (d*math.sin(math.radians(90))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'E':
+        x2 = round(x1 + (d*math.cos(math.radians(120))))
+        y2 = round(y1 + (d*math.sin(math.radians(120))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'F':
+        x2 = round(x1 + (d*math.cos(math.radians(150))))
+        y2 = round(y1 + (d*math.sin(math.radians(150))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'G':
+        x2 = round(x1 + (d*math.cos(math.radians(180))))
+        y2 = round(y1 + (d*math.sin(math.radians(180))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'H':
+        x2 = round(x1 + (d*math.cos(math.radians(210))))
+        y2 = round(y1 + (d*math.sin(math.radians(210))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)  
+    elif i == 'I':
+        x2 = round(x1 + (d*math.cos(math.radians(240))))
+        y2 = round(y1 + (d*math.sin(math.radians(240))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'J':
+        x2 = round(x1 + (d*math.cos(math.radians(270))))
+        y2 = round(y1 + (d*math.sin(math.radians(270))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'K':
+        x2 = round(x1 + (d*math.cos(math.radians(300))))
+        y2 = round(y1 + (d*math.sin(math.radians(300))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    elif i == 'L':
+        x2 = round(x1 + (d*math.cos(math.radians(330))))
+        y2 = round(y1 + (d*math.sin(math.radians(330))))
+        cv2.arrowedLine(image, (y1,x1), (y2,x2), (0,0,255), 1)
+    x1 = x2
+    y1 = y2
    
 for i in obstacles:     #displays obstacles as black pixels on image map
     locx = int(i[0:3])
