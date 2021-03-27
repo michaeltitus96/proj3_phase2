@@ -13,7 +13,7 @@ start_y = int(input("Enter starting y-coordinate (6-295): "))
 goal_x = int(input("Enter finishing x-coordinate (6-395): "))
 goal_y = int(input("Enter finishing y-coordinate (6-295): "))
 print()
-d = int(input("Enter the step distance for each movement (1-10): "))
+d = int(input("Enter the step distance for each movement (1-10): "))        #inputs the step size
 
 image = np.ones((801,601,1),np.uint8)*255     #creates blank image
 
@@ -32,7 +32,7 @@ def CoordToString(x,y):
         stringy = '' 
     return stringx,stringy
 
-start_x = start_x*2
+start_x = start_x*2             #doubles the coordinates and step to work with the 800x600 pixel image
 start_y = start_y*2
 startx,starty = CoordToString(start_x,start_y) 
 start_loc = str(startx+str(int(start_x))+starty+str(int(start_y)))
@@ -253,7 +253,7 @@ for i in range(362,624):        #clearance 6: ellipse
         else:
             pass
    
-if start_loc in obstacles:
+if start_loc in obstacles:          #checks that are the inputs are valid
     print("Starting coordinates are in an obstacle. Please try again.")
     sys.exit()
    
@@ -281,38 +281,46 @@ if d > 20 or d < 2:
     print("Invalid step distance entered. Please try again.")
     sys.exit()
 
-def checkGoal(x,y):
+def checkGoal(x,y):         #function checks if the current node is within the accepted radius of the goal
     if (goal_x - 3 <= x <= goal_x + 3) and (goal_y - 3 <= y <= goal_y + 3):
         return True
     else:
         return False
 
-travelled = {start_loc : [0,'I']}
+z = 1                   #z is an integer that sets the radius of 'visited' coordinates. for a bigger step,
+if d >= 2 and d <= 4:   #z is larger, meaning that for any visited coordinate, the surrounding coordinates 
+    z = 1               #with a radius of 3 will be considered 'visited'.
+elif d > 4 and d <= 10:
+    z = 2
+elif d > 10 and d <= 20:
+    z = 3
+
+travelled = {start_loc : [0,'Q']}       #the dictionary of travelled points
 current_x = copy.deepcopy(start_x)
 current_y = copy.deepcopy(start_y)
 current_p = travelled[start_loc][1]
 current_cost = travelled[start_loc][0]
 
-locations = [start_loc]
+locations = [start_loc]     #the locations of all points visited (z radius included)
 
-def move00(x,y,cost,p):    
+def move00(x,y,cost,p):    #the move function. updates the current path, finds the new x and y
     p = p + 'A'
     xmap = copy.deepcopy(x)
     ymap = copy.deepcopy(y)
     x = x + (d*math.cos(math.radians(0)))
     y = y + (d*math.sin(math.radians(0)))
-    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))
+    ctg = math.sqrt(((goal_x-x)**2)+((goal_y-y)**2))            #calculates the Euclidean distance for cost-to-go
     x = round(x)
     y = round(y)
-    cost = ctg + ((len(p)-1)*d1)
+    cost = ctg + ((len(p)-1)*d1)            #calculated the total cost (CTG + total number of steps so far (CTC))
     stringx,stringy = CoordToString(x,y) 
     location = str(stringx+str(int(x))+stringy+str(int(y)))
     if (location not in locations) and (location not in travelled) and (location not in clearance) and x > 0 and x < 800 and y > 0 and y < 600:
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):            #the z integer, making surrounding coordinates 'visited'
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -336,8 +344,8 @@ def move30(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -361,8 +369,8 @@ def move60(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -386,8 +394,8 @@ def move90(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -411,8 +419,8 @@ def move120(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -436,8 +444,8 @@ def move150(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -461,8 +469,8 @@ def move180(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -486,8 +494,8 @@ def move210(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -511,8 +519,8 @@ def move240(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -536,8 +544,8 @@ def move270(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -561,8 +569,8 @@ def move300(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -586,8 +594,8 @@ def move330(x,y,cost,p):
         cv2.arrowedLine(image, (ymap,xmap), (y,x), (0, 255, 0), 1)
         update = {location : [cost,p]}
         travelled.update(update)
-        for i in range(x-3,x+3):
-            for j in range(y-3,y+3):
+        for i in range(x-z,x+z):
+            for j in range(y-z,y+z):
                 stringx,stringy = CoordToString(i,j) 
                 location = str(stringx+str(int(i))+stringy+str(int(j)))
                 locations.append(location)
@@ -595,8 +603,8 @@ def move330(x,y,cost,p):
     else:
         pass
 
-while checkGoal(current_x,current_y) == False:
-    move00(current_x,current_y,current_cost,current_p)
+while checkGoal(current_x,current_y) == False:          #while the current node is not within the goal radius...
+    move00(current_x,current_y,current_cost,current_p)  #checks coordinates in each direction in 30 degree increments
     move30(current_x,current_y,current_cost,current_p)
     move60(current_x,current_y,current_cost,current_p)
     move90(current_x,current_y,current_cost,current_p)
@@ -609,9 +617,9 @@ while checkGoal(current_x,current_y) == False:
     move300(current_x,current_y,current_cost,current_p)
     move330(current_x,current_y,current_cost,current_p)
 
-    del travelled[start_loc]
+    del travelled[start_loc]        #deletes the parent node from list after its been checked
     travelled = {k: v for k, v in sorted(travelled.items(), key=lambda item: item[1])}   
-    start_loc = list(travelled.keys())[0]
+    start_loc = list(travelled.keys())[0]           #updates the next parent node to be the one with the lowest cost
     current_x = int(start_loc[0:3])
     current_y = int(start_loc[3:])
     current_cost = list(travelled.values())[0][0]
@@ -622,10 +630,10 @@ print("Solution found! Optimal path marked in red.")
 x1 = copy.deepcopy(start_x)
 y1 = copy.deepcopy(start_y)
 
-image = cv2.cvtColor(image,cv2.COLOR_GRAY2RGB)
+image = cv2.cvtColor(image,cv2.COLOR_GRAY2RGB)      #convert image to RGB to plot red solution
 
 for i in current_p:         #shows optimal path by back tracking from first parent node to reach solution
-    if i == 'I':
+    if i == 'Q':
         x2 = round(x1)
         y2 = round(y1)
     elif i == 'A':
