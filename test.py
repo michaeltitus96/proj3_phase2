@@ -605,7 +605,20 @@ def move330(x,y,cost,p):
 
 
 while checkGoal(current_x,current_y) == False:          #while the current node is not within the goal radius...
-    if current_p == 'Q' or current_p[-1] == 'A':
+    if current_p[-1] == 'Q':
+        move00(current_x,current_y,current_cost,current_p)  
+        move30(current_x,current_y,current_cost,current_p)
+        move60(current_x,current_y,current_cost,current_p)
+        move90(current_x,current_y,current_cost,current_p)
+        move120(current_x,current_y,current_cost,current_p)
+        move150(current_x,current_y,current_cost,current_p)
+        move180(current_x,current_y,current_cost,current_p)
+        move210(current_x,current_y,current_cost,current_p)
+        move240(current_x,current_y,current_cost,current_p)
+        move270(current_x,current_y,current_cost,current_p)
+        move300(current_x,current_y,current_cost,current_p)
+        move330(current_x,current_y,current_cost,current_p)
+    elif current_p[-1] == 'A':
         move00(current_x,current_y,current_cost,current_p)  
         move30(current_x,current_y,current_cost,current_p)
         move60(current_x,current_y,current_cost,current_p)
